@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"yotei-backend/models"
 
@@ -24,10 +25,16 @@ func Connect() error {
 		return fmt.Errorf("DATABASE_URL environment variable is not set")
 	}
 
-	// データベースに接続
-	DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
+	// 時間を空けて何度か試す
+	for i := 0; i < 4; i++ {
+		DB, err = gorm.Open(postgres.Open(databaseURL), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+		if err == nil {
+			break
+		}
+		time.Sleep(20 * time.Second)
+	}
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
