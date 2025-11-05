@@ -45,6 +45,7 @@ func Migrate() error {
 		&models.CandidateDate{},
 		&models.Participant{},
 		&models.Response{},
+		&models.RSSFeed{},
 	)
 	if err != nil {
 		return fmt.Errorf("failed to run migrations: %w", err)

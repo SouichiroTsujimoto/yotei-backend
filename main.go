@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"yotei-backend/database"
 	"yotei-backend/handlers"
@@ -11,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	"github.com/robfig/cron/v3"
 )
 
 func main() {
@@ -30,6 +32,27 @@ func main() {
 	if err := database.Migrate(); err != nil {
 		log.Fatal("Failed to run migrations:", err)
 	}
+
+	// --- 定期実行ジョブのセットアップ ---
+	// タイムゾーンを指定（サーバーのローカルタイムではなくJSTなどを指定）
+	loc, _ := time.LoadLocation("Asia/Tokyo")
+	c := cron.New(cron.WithLocation(loc))
+
+	_, err := c.AddFunc("@every 1m", func() {
+		log.Println("Running scheduled job: Checking deadlines...")
+		err := handlers.CheckDeadlinesAndFinalize()
+		if err != nil {
+			log.Println("Failed to check and finalize deadlines:", err)
+		}
+	})
+	if err != nil {
+		log.Fatalf("Failed to add cron job: %v", err)
+	}
+
+	// ジョブを開始
+	c.Start()
+	log.Println("Finalize deadlines scheduler started...")
+	defer c.Stop()
 
 	// Fiberアプリを作成
 	app := fiber.New(fiber.Config{
@@ -63,8 +86,10 @@ func main() {
 
 	// イベント関連のエンドポイント
 	api.Post("/events", handlers.CreateEvent)
-	// api.Get("/events", handlers.GetAllEvents)
 	api.Get("/events/:id", handlers.GetEvent)
+	api.Post("/events/:id/participant", handlers.RegisterParticipant)
+	api.Put("/events/:id/settings", handlers.UpdateEventSettings)
+	api.Get("/rss/:id/feed", handlers.EventRSS)
 
 	// サーバーを起動
 	port := os.Getenv("PORT")
