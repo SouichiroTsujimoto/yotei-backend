@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"yotei-backend/database"
@@ -203,10 +204,10 @@ func RegisterParticipant(c *fiber.Ctx) error {
 		})
 	}
 
-	log.Println("Participants:", len(event.Participants))
+	log.Println("Participants:", len(event.Participants)+1)
 	log.Println("AutoDecisionThreshold:", event.AutoDecisionThreshold)
 	log.Println("AutoDecisionEnable:", event.AutoDecisionEnable)
-	if event.AutoDecisionEnable && len(event.Participants) >= event.AutoDecisionThreshold {
+	if event.AutoDecisionEnable && len(event.Participants)+1 >= event.AutoDecisionThreshold {
 		if err := CheckAutoDecisionAndFinalize(eventID); err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to check and finalize auto decision",
@@ -295,7 +296,7 @@ func EventRSS(c *fiber.Ctx) error {
 
 	feed := &feeds.Feed{
 		Title:       fmt.Sprintf("%s", event.Title),
-		Link:        &feeds.Link{Href: fmt.Sprintf("https://localhost:3000/%d/vote", event.ID)}, // TODO: 本番環境のURLに変更
+		Link:        &feeds.Link{Href: fmt.Sprintf("%s/%d/vote", os.Getenv("FRONTEND_URL"), event.ID)}, // TODO: 本番環境のURLに変更
 		Description: "このイベントの予定日が決定次第、通知が届きます。",
 		Created:     time.Now(), // (実際にはイベントの作成日時など)
 	}

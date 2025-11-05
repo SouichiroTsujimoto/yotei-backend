@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 	"yotei-backend/database"
 	"yotei-backend/models"
@@ -29,7 +30,7 @@ func CheckDeadlinesAndFinalize() error {
 				rssFeed = models.RSSFeed{
 					EventID:     event.ID,
 					Title:       event.Title,
-					Link:        fmt.Sprintf("https://localhost:3000/%s/vote", event.ID),
+					Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), event.ID),
 					Description: fmt.Sprintf("【%s】設定された締切時刻になりましたが、投票がありませんでした。", event.Title),
 					CreatedAt:   time.Now(),
 				}
@@ -39,7 +40,7 @@ func CheckDeadlinesAndFinalize() error {
 				rssFeed = models.RSSFeed{
 					EventID:     event.ID,
 					Title:       event.Title,
-					Link:        fmt.Sprintf("https://localhost:3000/%s/vote", event.ID),
+					Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), event.ID),
 					Description: fmt.Sprintf("【%s】設定された締切時刻になりました。最も投票が多かった予定日はこちらです。\n予定日: %s", event.Title, decidedCandidateDate.DateTime.Format("2006年01月02日")),
 					CreatedAt:   time.Now(),
 				}
@@ -54,7 +55,7 @@ func CheckDeadlinesAndFinalize() error {
 				rssFeed = models.RSSFeed{
 					EventID:     event.ID,
 					Title:       event.Title,
-					Link:        fmt.Sprintf("https://localhost:3000/%s/vote", event.ID),
+					Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), event.ID),
 					Description: fmt.Sprintf("【%s】設定された締切時刻になりましたが、最も投票が多かった予定日が複数存在します。\n予定日: %s", event.Title, dates),
 					CreatedAt:   time.Now(),
 				}
@@ -89,7 +90,7 @@ func CheckAutoDecisionAndFinalize(eventID string) error {
 			rssFeed = models.RSSFeed{
 				EventID:     eventID,
 				Title:       event.Title,
-				Link:        fmt.Sprintf("https://localhost:3000/%s/vote", eventID),
+				Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), eventID),
 				Description: fmt.Sprintf("【%s】%d人以上の投票が集まりましたが、投票日は一日もありませんでした。", event.Title, event.AutoDecisionThreshold),
 				CreatedAt:   time.Now(),
 			}
@@ -98,7 +99,7 @@ func CheckAutoDecisionAndFinalize(eventID string) error {
 			rssFeed = models.RSSFeed{
 				EventID:     eventID,
 				Title:       event.Title,
-				Link:        fmt.Sprintf("https://localhost:3000/%s/vote", eventID),
+				Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), eventID),
 				Description: fmt.Sprintf("【%s】%d人以上の投票が集まりました。最も投票が多かった予定日はこちらです。\n予定日: %s", event.Title, event.AutoDecisionThreshold, decidedCandidateDate.DateTime.Format("2006年01月02日")),
 				CreatedAt:   time.Now(),
 			}
@@ -113,7 +114,7 @@ func CheckAutoDecisionAndFinalize(eventID string) error {
 			rssFeed = models.RSSFeed{
 				EventID:     eventID,
 				Title:       event.Title,
-				Link:        fmt.Sprintf("https://localhost:3000/%s/vote", eventID),
+				Link:        fmt.Sprintf("%s/%s/vote", os.Getenv("FRONTEND_URL"), eventID),
 				Description: fmt.Sprintf("【%s】%d人以上の投票が集まりましたが、最も投票が多かった予定日が複数存在します。\n予定日: %s", event.Title, event.AutoDecisionThreshold, dates),
 				CreatedAt:   time.Now(),
 			}
