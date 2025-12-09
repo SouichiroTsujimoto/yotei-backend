@@ -6,7 +6,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// Event は予定調整のイベントを表す
 type Event struct {
 	ID                  string    `gorm:"primaryKey;type:varchar(36)" json:"id"`
 	Title               string    `gorm:"not null;type:varchar(255)" json:"title"`
@@ -30,7 +29,6 @@ type Event struct {
 	Participants   []Participant   `gorm:"foreignKey:EventID;constraint:OnDelete:CASCADE" json:"participants"`
 }
 
-// CandidateDate はイベントの候補日を表す
 type CandidateDate struct {
 	ID        uint           `gorm:"primaryKey" json:"id"`
 	EventID   string         `gorm:"not null;type:varchar(36);index" json:"event_id"`
@@ -43,7 +41,6 @@ type CandidateDate struct {
 	Responses []Response `gorm:"foreignKey:CandidateDateID;constraint:OnDelete:CASCADE" json:"responses"`
 }
 
-// Participant は参加者を表す
 type Participant struct {
 	ID        uint      `gorm:"primaryKey" json:"id"`
 	EventID   string    `gorm:"not null;type:varchar(36);index" json:"event_id"`
@@ -55,7 +52,6 @@ type Participant struct {
 	Responses []Response `gorm:"foreignKey:ParticipantID;constraint:OnDelete:CASCADE" json:"responses"`
 }
 
-// Response は参加者の各候補日に対する回答を表す
 type Response struct {
 	ID              uint      `gorm:"primaryKey" json:"id"`
 	ParticipantID   uint      `gorm:"not null;index" json:"participant_id"`

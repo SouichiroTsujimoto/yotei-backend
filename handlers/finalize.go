@@ -12,7 +12,6 @@ import (
 func CheckDeadlinesAndFinalize() error {
 	log.Println("Checking and finalizing deadlines...")
 
-	// イベントを取得
 	var events []models.Event
 	if err := database.DB.Find(&events).Error; err != nil {
 		return fmt.Errorf("Failed to get events: %w", err)
